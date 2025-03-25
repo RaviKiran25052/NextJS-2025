@@ -57,7 +57,7 @@ To maintain consistent UI elements across multiple pages, such as headers and fo
 └── /app
     ├── layout.tsx          // Shared layout for all pages
     └── page.tsx            // Renders at /
-	 
+
 import { ReactNode } from 'react';
 
 interface LayoutProps {
@@ -95,3 +95,115 @@ If you want the route to match both /products and any nested paths like /product
         └── /[[...slug]]
             └── page.tsx    // Renders all paths `/products/* including /products`
 
+Custom 404 Page:
+src/app/not-found.tsx
+
+import Link from 'next/link';
+
+export default function NotFound() {
+  return (
+    <div>
+      <h1>404 - Page Not Found</h1>
+      <p>Sorry, the page you are looking for does not exist.</p>
+      <Link href="/">Go back home</Link>
+    </div>
+  );
+}
+
+Private folders:
+these folders will not be included in the routing system.
+The folder and all its subfolders are excluded from routing
+Add an underscore ( _ ) at the start of the folder name
+Private folders are super useful for a bunch of things:
+- Keeping your UI logic separate from routing logic
+- Having a consistent way to organize internal files in your project
+- Making it easier to group related files in your code editor
+- Avoiding potential naming conflicts with future Next.js file naming conventions
+If you actually want an underscore in your URL , use "%5F" instead. That's just
+the URL-encoded version of an underscore.
+
+Route-grouping:
+To create a Route Group, simply wrap the folder name in parentheses. This tells Next.js to use the folder for organizational purposes without including it in the URL path.​
+
+/src/app
+├── (marketing)
+│   ├── about
+│   │   └── page.tsx
+│   └── contact
+│       └── page.tsx
+├── (shop)
+│   ├── products
+│   │   └── page.tsx
+│   └── cart
+│       └── page.tsx
+└── page.tsx
+
+localhost:3000/about --> src/app/(marketing)/about/page.tsx.​
+localhost:3000/contact --> src/app/(marketing)/contact/page.tsx.​
+localhost:3000/products --> src/app/(shop)/products/page.tsx.​
+localhost:3000/cart --> src/app/(shop)/cart/page.tsx.
+
+Route Groups with Layouts:
+/app
+├── (marketing)
+│   ├── layout.tsx
+│   └── about
+│       └── page.tsx
+└── (shop)
+    ├── layout.tsx
+    └── products
+        └── page.tsx
+
+The (marketing) group has its own layout.tsx that applies to all routes within the marketing section.
+The (shop) group has a separate layout.tsx for the shop section.
+
+
+Routing metadata:
+- The Metadata API in Next.js is a powerful feature that lets us define metadata for each page
+- Metadata ensures our content looks great when it's shared or indexed by search engines
+
+Two ways to handle metadata in layout.tsx or page.tsx files:
+1. export a static metadata object
+2. export a dynamic generateMetadata function
+
+Configuring metadata rules
+- Both layout.tsx and page.tsx can export metadata. Layout metadata applies to all its pages, while page metadata is specific to that page
+- Metadata follows a top-down order, starting from the root level
+- When metadata exists in multiple places along a route, they merge together, with page metadata overriding layout metadata for matching properties.
+
+app/layout.tsx
+export const metadata = {
+  title: "MyWebsite",
+  description: "Welcome to MyWebsite!",
+};
+
+app/about/page.tsx
+export const metadata = {
+  title: "About Us - MyWebsite",
+  description: "Learn more about our company and team.",
+};
+
+localhost:3000 -> html title: "MyWebsite"
+localhost:3000/about -> html title: "About Us - MyWebsite"
+
+Dynamic Metadata:
+
+app/blog/[slug]/page.tsx
+
+type Props = { params: { slug: string } };
+
+// the name should be "generateMetadata"
+export async function generateMetadata({ params }: Props) {
+  return {
+    title: `Blog Post - ${params.slug}`,
+    description: `Read our latest blog post about ${params.slug}.`,
+  };
+}
+
+export default function BlogPost({ params }: Props) {
+  return <h1>Blog: {params.slug}</h1>;
+}
+
+--------------------------------------------------------------------------------
+
+API 
