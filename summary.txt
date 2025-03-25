@@ -30,3 +30,68 @@ Routing conventions
 2. Route files must be named either page.js or page.tsx
 3. Each folder represents a segment of the URL path
 When these conventions are followed, the file automatically becomes available as a route.
+
+Static Routes:
+/src/app/about/page.tsx -> `http://localhost:3000/about`
+
+/src
+└── /app
+    ├── /about
+    │   └── page.tsx        // Renders at /about
+
+Dynamic Routes:
+/src/app/blog/[id]/page.tsx -> `http://localhost:3000/blog/25`
+
+/src
+└── /app
+    ├── /blog
+    │   ├── /[id]
+    │   │   └── page.tsx    // Renders at /blog/:id
+    │   └── page.tsx        // Renders at /blog
+
+Shared Layouts:
+To maintain consistent UI elements across multiple pages, such as headers and footers, utilize the layout.tsx file.
+/src/app/layout.tsx
+
+/src
+└── /app
+    ├── layout.tsx          // Shared layout for all pages
+    └── page.tsx            // Renders at /
+	 
+import { ReactNode } from 'react';
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
+  return (
+    <div>
+      <header>
+        <nav>
+          {/* Navigation links */}
+        </nav>
+      </header>
+      <main>{children}</main>
+      <footer>
+        {/* Footer content */}
+      </footer>
+    </div>
+  );
+}
+
+Catch-All Routes:
+page.tsx will handle requests to /docs/a, /docs/a/b, /docs/a/b/c, and so on. The captured segments are accessible via the params object
+/src
+└── /app
+    └── /docs
+        └── /[...slug]
+        		└── page.tsx    // Renders all paths `/docs/* excluding /docs`
+
+If you want the route to match both /products and any nested paths like /products/a/b, you can create an optional catch-all route using double square brackets:
+/src
+└── /app
+    └── /products
+        └── /[[...slug]]
+            └── page.tsx    // Renders all paths `/products/* including /products`
+
